@@ -9,7 +9,8 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
-import android.widget.Button
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
@@ -48,37 +49,35 @@ class MainActivity : AppCompatActivity() {
             serviceConnection,
             BIND_AUTO_CREATE
         )
+    }
 
-        val startButton = findViewById<Button>(R.id.startButton)
-        startButton.setOnClickListener {
-            if (isConnected) {
-                if(timerBinder.isRunning) {
-                    timerBinder.pause()
-                    startButton.text = "Unpause"
-                } else {
-                    if (timerBinder.paused) {
-                        Log.d("Testing Pause...", currentTime.toString())
-                        timerBinder.start(currentTime)
-                    } else {
-                        timerBinder.start(100)
-                        startButton.text = "Pause"
-                    }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.newmenu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        return when (item.itemId) {
+
+            R.id.action_start -> {
+                if (!timerBinder.isRunning && !timerBinder.paused) {
+                    timerBinder.start(100)
                 }
+                true
             }
-        }
 
-        findViewById<Button>(R.id.stopButton).setOnClickListener {
-            if (isConnected) {
+            R.id.action_stop -> {
                 timerBinder.stop()
-                if(!timerBinder.paused) {
-                    startButton.text = "Start"
-                }
+                true
             }
-        }
 
-        fun onDestroy() {
-            unbindService(serviceConnection)
-            super.onDestroy()
+            else -> false
         }
+    }
+
+    override fun onDestroy() {
+        unbindService(serviceConnection)
+        super.onDestroy()
     }
 }
